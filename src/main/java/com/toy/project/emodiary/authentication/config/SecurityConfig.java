@@ -48,6 +48,9 @@ public class SecurityConfig {
                         .requestMatchers("/auth/token/access").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/users/password").permitAll()
                         .requestMatchers("/auth/users/password/reset/**").permitAll()
+
+                        .requestMatchers(request -> HttpMethod.GET.matches(request.getMethod()) && request.getServletPath().startsWith("/diary/")).permitAll()
+
                         // 그 외
                         .anyRequest().authenticated()
                 )

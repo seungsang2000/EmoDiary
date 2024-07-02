@@ -22,7 +22,6 @@ public class DiaryService {
     private final DiaryRepository diaryRepository;
     private final SecurityUtil securityUtil;
 
-
     public ResponseEntity<MessageDto> createDiary(DiaryCreateDto diaryCreateDto) {
         Diary diary = new Diary();
         diary.setTitle(diaryCreateDto.getTitle());

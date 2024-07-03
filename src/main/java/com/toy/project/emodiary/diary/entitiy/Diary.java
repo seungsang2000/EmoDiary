@@ -6,9 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -42,4 +39,10 @@ public class Diary {
 
     @Column(name = "modified_date", nullable = false)
     private LocalDateTime modifiedDate;
+
+    @Column(name = "word_img", nullable = true)
+    private String wordImg;
+
+    @Column(name = "emotion", nullable = true)
+    private String emotion;
 }

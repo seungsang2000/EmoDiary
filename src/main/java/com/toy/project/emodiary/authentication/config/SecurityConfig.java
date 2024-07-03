@@ -49,7 +49,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/users/password").permitAll()
                         .requestMatchers("/auth/users/password/reset/**").permitAll()
 
+                        // 다이어리
                         .requestMatchers(request -> HttpMethod.GET.matches(request.getMethod()) && request.getServletPath().startsWith("/diary/")).permitAll()
+
+                        // S3
+                        .requestMatchers("/s3/upload/**").permitAll()
 
                         // 그 외
                         .anyRequest().authenticated()

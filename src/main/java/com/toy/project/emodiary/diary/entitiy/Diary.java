@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 @Table(name = "Diary")
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 public class Diary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,11 +37,9 @@ public class Diary {
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
-    @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdDate;
 
-    @LastModifiedDate
     @Column(name = "modified_date", nullable = false)
     private LocalDateTime modifiedDate;
 }

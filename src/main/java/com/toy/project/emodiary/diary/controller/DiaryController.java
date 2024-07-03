@@ -14,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/diary")
@@ -51,5 +49,4 @@ public class DiaryController {
         Pageable pageable = PageRequest.of(page, limit, Sort.by("createdDate").descending());
         return diaryService.mydiaryList(pageable);
     }
-
 }

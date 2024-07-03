@@ -26,7 +26,7 @@ public class S3Service {
     private String bucket;
 
     // MultipartFile을 전달받아 File로 전환한 후 S3에 업로드
-    public String upload(MultipartFile multipartFile, String dirName) { // dirName의 디렉토리가 S3 Bucket 내부에 생성됨
+    public String upload(MultipartFile multipartFile, String dirName) {
 
         File uploadFile = convert(multipartFile)
                 .orElseThrow(() -> new CustomException(ErrorCode.FILE_CONVERT_ERROR));
@@ -34,10 +34,10 @@ public class S3Service {
     }
 
     private String upload(File uploadFile, String dirName) {
-        String fileName = dirName + "/" + uploadFile.getName();
+        String fileName = dirName; // 후에 변경 가능
         String uploadImageUrl = putS3(uploadFile, fileName);
 
-        removeNewFile(uploadFile);  // convert()함수로 인해서 로컬에 생성된 File 삭제 (MultipartFile -> File 전환 하며 로컬에 파일 생성됨)
+        removeNewFile(uploadFile);  // convert()함수로 인해서 로컬에 생성된 File 삭제
 
         return uploadImageUrl;      // 업로드된 파일의 S3 URL 주소 반환
     }
@@ -59,7 +59,7 @@ public class S3Service {
     }
 
     private Optional<File> convert(MultipartFile file) {
-        File convertFile = new File(file.getOriginalFilename()); // 업로드한 파일의 이름
+        File convertFile = new File(file.getOriginalFilename());
         try {
             if(convertFile.createNewFile()) {
                 try (FileOutputStream fos = new FileOutputStream(convertFile)) {

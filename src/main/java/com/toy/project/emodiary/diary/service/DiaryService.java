@@ -91,5 +91,10 @@ public class DiaryService {
         return ResponseEntity.status(HttpStatus.OK).body(new DiaryMyListDto(page, diaryLists));
     }
 
+    public void setWordCloud(String imgURL, Long diaryId) {
+        Diary diary = diaryRepository.findById(diaryId).orElseThrow(() -> new CustomException(ErrorCode.DIARY_NOT_FOUND));
+        diary.setWordImg(imgURL);
+        diaryRepository.save(diary);
+    }
 
 }

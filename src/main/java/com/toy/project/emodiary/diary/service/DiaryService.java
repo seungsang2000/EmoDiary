@@ -1,7 +1,5 @@
 package com.toy.project.emodiary.diary.service;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.toy.project.emodiary.authentication.entity.Users;
 import com.toy.project.emodiary.authentication.util.SecurityUtil;
 import com.toy.project.emodiary.common.dto.MessageDto;
@@ -48,15 +46,12 @@ public class DiaryService {
                 .uri("http://localhost:8000/api/emodiary/wordcloud")
                 .body(Mono.just(new WordCloudCreateDto(diary.getContent(), diary.getId())), WordCloudCreateDto.class)
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(byte[].class)
                 .subscribe(response -> {
-                    JsonObject jsonObject = JsonParser.parseString(response).getAsJsonObject();
-                    if(jsonObject.get("success").getAsBoolean()){
-                        String s3Url = jsonObject.get("url").getAsString();
-                        setWordCloud(s3Url, diary.getId());
-                    } else{
-                        setWordCloud("error", diary.getId());
-                    }
+                    // S3에 이미지 업로드 및 URL 받아오기
+                    String s3Url = s3Service.upload(response, "diary", diary.getId()+"");
+                    // 업로드된 이미지 URL을 일기에 저장
+                    setWordCloud(s3Url, diary.getId());
                 });
 
         return ResponseEntity.status(HttpStatus.OK).body(new MessageDto("일기 작성 완료"));
@@ -90,15 +85,12 @@ public class DiaryService {
                 .uri("http://localhost:8000/api/emodiary/wordcloud")
                 .body(Mono.just(new WordCloudCreateDto(diary.getContent(), diary.getId())), WordCloudCreateDto.class)
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(byte[].class)
                 .subscribe(response -> {
-                    JsonObject jsonObject = JsonParser.parseString(response).getAsJsonObject();
-                    if(jsonObject.get("success").getAsBoolean()){
-                        String s3Url = jsonObject.get("url").getAsString();
-                        setWordCloud(s3Url, diary.getId());
-                    } else{
-                        setWordCloud("error", diary.getId());
-                    }
+                    // S3에 이미지 업로드 및 URL 받아오기
+                    String s3Url = s3Service.upload(response, "diary", diary.getId() + "");
+                    // 업로드된 이미지 URL을 일기에 저장
+                    setWordCloud(s3Url, diary.getId());
                 });
         return ResponseEntity.status(HttpStatus.OK).body(new MessageDto("일기 수정 완료"));
     }

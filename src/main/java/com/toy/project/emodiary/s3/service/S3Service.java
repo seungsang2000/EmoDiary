@@ -25,6 +25,22 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
+
+    public String upload(byte[] imageBytes, String dirName, String fileName) {
+        // 임시 파일 생성
+        File tempFile = new File(System.getProperty("java.io.tmpdir") + "/" + fileName);
+        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+            fos.write(imageBytes);
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.FILE_CONVERT_ERROR);
+        }
+        // S3에 파일 업로드
+        String uploadImageUrl = upload(tempFile, dirName + "/" + fileName);
+        // 임시 파일 삭제
+        tempFile.delete();
+        return uploadImageUrl;
+    }
+
     // MultipartFile을 전달받아 File로 전환한 후 S3에 업로드
     public String upload(MultipartFile multipartFile, String dirName) {
 

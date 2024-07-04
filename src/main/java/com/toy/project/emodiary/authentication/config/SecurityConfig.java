@@ -50,7 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/users/password/reset/**").permitAll()
 
                         // 다이어리
-                        .requestMatchers(request -> HttpMethod.GET.matches(request.getMethod()) && request.getServletPath().startsWith("/diary/")).permitAll()
+//                        .requestMatchers(request -> HttpMethod.GET.matches(request.getMethod()) && request.getServletPath().startsWith("/diary/")).permitAll()
 
                         // S3
                         .requestMatchers("/s3/upload/**").permitAll()

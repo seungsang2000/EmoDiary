@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -24,7 +24,7 @@ public class Diary {
     @Column(name = "title", nullable = false)
     public String title;
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     public String content;
 
     @Column(name = "weather", nullable = true)
@@ -35,10 +35,10 @@ public class Diary {
     private Users user;
 
     @Column(name = "created_date", nullable = false, updatable = false)
-    private LocalDateTime createdDate;
+    private LocalDate createdDate;
 
     @Column(name = "modified_date", nullable = false)
-    private LocalDateTime modifiedDate;
+    private LocalDate modifiedDate;
 
     @Column(name = "word_img", nullable = true)
     private String wordImg;

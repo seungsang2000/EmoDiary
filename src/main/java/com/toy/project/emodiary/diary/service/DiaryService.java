@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -49,7 +50,7 @@ public class DiaryService {
                 .bodyToMono(byte[].class)
                 .subscribe(response -> {
                     // S3에 이미지 업로드 및 URL 받아오기
-                    String s3Url = s3Service.upload(response, "diary", diary.getId()+"");
+                    String s3Url = s3Service.upload(response, "diary", diary.getId()+".jpg");
                     // 업로드된 이미지 URL을 일기에 저장
                     setWordCloud(s3Url, diary.getId());
                 });

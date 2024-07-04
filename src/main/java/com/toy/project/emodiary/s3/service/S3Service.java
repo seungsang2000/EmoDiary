@@ -51,14 +51,14 @@ public class S3Service {
 
     private String upload(File uploadFile, String dirName) {
         String fileName = dirName; // 후에 변경 가능
-        String uploadImageUrl = putS3(uploadFile, fileName);
+        String uploadImageUrl = putS3Image(uploadFile, fileName);
 
         removeNewFile(uploadFile);  // convert()함수로 인해서 로컬에 생성된 File 삭제
 
         return uploadImageUrl;      // 업로드된 파일의 S3 URL 주소 반환
     }
 
-    private String putS3(File uploadFile, String fileName) {
+    private String putS3Image(File uploadFile, String fileName) {
         amazonS3.putObject(
                 new PutObjectRequest(bucket, fileName, uploadFile)
                         .withCannedAcl(CannedAccessControlList.PublicRead)

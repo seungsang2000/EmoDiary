@@ -72,4 +72,9 @@ public class S3Service {
         }
         return Optional.empty();
     }
+
+    // S3에 업로드된 이미지 삭제
+    public void deleteImage(String fileName) {
+        amazonS3.deleteObject(bucket, fileName);
+    }
 }

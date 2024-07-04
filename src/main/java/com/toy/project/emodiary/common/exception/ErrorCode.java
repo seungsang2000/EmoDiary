@@ -20,6 +20,7 @@ public enum ErrorCode {
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),
     REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 만료되었습니다."),
     UPDATE_DENIED(HttpStatus.UNAUTHORIZED, "해당 리소스에 대한 수정 권한이 없습니다."),
+    DELETE_DENIED(HttpStatus.UNAUTHORIZED, "해당 리소스에 대한 삭제 권한이 없습니다."),
 
     // 404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),

@@ -42,4 +42,9 @@ public class DiaryController {
     public ResponseEntity<List<DiaryView>> MyList() {
         return diaryService.mydiaryList();
     }
+
+    @GetMapping("/diaryMonthList")
+    public ResponseEntity<List<DiaryView>> MonthList(@RequestParam int year, @RequestParam int month) {
+        return diaryService.diaryMonthList(year, month);
+    }
 }

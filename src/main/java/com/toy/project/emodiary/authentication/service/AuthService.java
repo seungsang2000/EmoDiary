@@ -68,13 +68,12 @@ public class AuthService {
     @Transactional
     public ResponseEntity<SignInSuccessDto> signIn(SignInDto dto) {
         try {
-            // 이메일과 비밀번호를 통해 인증 토큰 (JWT 아님) 생성
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword());
 
-            // AuthenticationManager를 통해 검증
+            //authentication 객제 검증
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-            // 검증된 Authentication 객체를 통해 토큰 생성
+            // Access Token, Refresh Token 생성
             String accessToken = jwtTokenProvider.generateAccessToken(authentication);
             String refreshToken = jwtTokenProvider.generateRefreshToken();
 
@@ -121,24 +120,23 @@ public class AuthService {
 
     // Access Token 재발급
     public ResponseEntity<TokenDto> reIssueAccessToken(String accessToken, String refreshToken) {
-        // Access Token 앞에 Bearer가 붙어있는지 확인하고 제거
         if (accessToken != null && accessToken.startsWith("Bearer ")) {
             accessToken = accessToken.substring(7);
         } else {
             throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
         }
 
-        String subject = jwtTokenProvider.getClaims(accessToken).getSubject(); // 이메일
+        String email = jwtTokenProvider.getClaims(accessToken).getSubject();
         String authorities = jwtTokenProvider.getClaims(accessToken).get(AUTHORITIES_KEY).toString(); // 권한 정보
 
-        String storedRefreshToken = redisUtil.getData(subject + REFRESH_TOKEN_SUFFIX); // Redis에 저장된 Refresh Token을 가져옴
+        String storedRefreshToken = redisUtil.getData(email + REFRESH_TOKEN_SUFFIX); // Redis에 저장된 Refresh Token을 가져옴
 
         // Refresh Token 유효성 검사
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken) || !jwtTokenProvider.validateToken(storedRefreshToken)) {
             throw new CustomException(ErrorCode.REFRESH_TOKEN_EXPIRED);
         }
 
-        String newAccessToken = jwtTokenProvider.reissueAccessToken(subject, authorities); // Access Token 재발급
+        String newAccessToken = jwtTokenProvider.reissueAccessToken(email, authorities); // Access Token 재발급
 
         return ResponseEntity.status(HttpStatus.OK).body(new TokenDto(newAccessToken, null));
     }

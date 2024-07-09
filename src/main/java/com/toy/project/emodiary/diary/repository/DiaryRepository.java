@@ -1,5 +1,6 @@
 package com.toy.project.emodiary.diary.repository;
 
+import com.toy.project.emodiary.diary.dto.YearCountDto;
 import com.toy.project.emodiary.diary.entitiy.Diary;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +16,13 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     @Query("SELECT d FROM Diary d WHERE d.user.uuid = :uuid AND d.createdDate BETWEEN :startDate AND :endDate")
     List<Diary> findAllByUserUuidAndCreatedDateBetween(@Param("uuid") UUID uuid, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
+    // 연도별 일기 수 조회(내림차순)
+    @Query("SELECT new com.toy.project.emodiary.diary.dto.YearCountDto(YEAR(d.createdDate), COUNT(d)) FROM Diary d WHERE d.user.uuid = :uuid GROUP BY YEAR(d.createdDate) ORDER BY YEAR(d.createdDate) DESC ")
+    List<YearCountDto> findYearCount(@Param("uuid") UUID uuid);
 
+    // 해당 연도에 작성된 월들만 조회
+    @Query("SELECT DISTINCT MONTH(d.createdDate) FROM Diary d WHERE d.user.uuid = :uuid AND YEAR(d.createdDate) = :year ORDER BY MONTH(d.createdDate) ASC")
+    List<String> findUsedMonth(UUID uuid, Integer year);
 
 
 //    Page<Diary> findAllByUserUuid(UUID userId, Pageable pageable); // 페이지 필요할 때  사용

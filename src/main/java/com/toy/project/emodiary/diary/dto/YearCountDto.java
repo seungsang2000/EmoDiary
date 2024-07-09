@@ -9,5 +9,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class YearCountDto {
     private int year;
-    private int count;
+    private long count;
 }

@@ -5,10 +5,7 @@ import com.toy.project.emodiary.authentication.util.SecurityUtil;
 import com.toy.project.emodiary.common.dto.MessageDto;
 import com.toy.project.emodiary.common.exception.CustomException;
 import com.toy.project.emodiary.common.exception.ErrorCode;
-import com.toy.project.emodiary.diary.dto.DiaryCreateDto;
-import com.toy.project.emodiary.diary.dto.DiaryUpdateDto;
-import com.toy.project.emodiary.diary.dto.DiaryView;
-import com.toy.project.emodiary.diary.dto.WordCloudCreateDto;
+import com.toy.project.emodiary.diary.dto.*;
 import com.toy.project.emodiary.diary.entitiy.Diary;
 import com.toy.project.emodiary.diary.repository.DiaryRepository;
 import com.toy.project.emodiary.s3.service.S3Service;
@@ -128,7 +125,7 @@ public class DiaryService {
         return ResponseEntity.status(HttpStatus.OK).body(diaryViews);
     }
 
-    public ResponseEntity<List<DiaryView>> diaryMonthList(Integer year, Integer month) {
+    public ResponseEntity<DiaryMenuDto> diaryMonthList(Integer year, Integer month) {
         Users currentUser = securityUtil.getCurrentUser();
         LocalDate startDate = LocalDate.of(year, month, 1);
         LocalDate endDate = startDate.plusMonths(1).minusDays(1);
@@ -146,8 +143,12 @@ public class DiaryService {
             return diaryView;
         }).toList();
 
+        List<String> months = diaryRepository.findUsedMonth(currentUser.getUuid(), year);
+        List<YearCountDto> years = diaryRepository.findYearCount(currentUser.getUuid());
+        DiaryMenuDto diaryMenuDto = new DiaryMenuDto(years, months, diaryViews);
 
-        return ResponseEntity.status(HttpStatus.OK).body(diaryViews);
+
+        return ResponseEntity.status(HttpStatus.OK).body(diaryMenuDto);
     }
 
     public void setWordCloud(String imgURL, Long diaryId) {

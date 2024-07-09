@@ -2,6 +2,7 @@ package com.toy.project.emodiary.diary.controller;
 
 import com.toy.project.emodiary.common.dto.MessageDto;
 import com.toy.project.emodiary.diary.dto.DiaryCreateDto;
+import com.toy.project.emodiary.diary.dto.DiaryMenuDto;
 import com.toy.project.emodiary.diary.dto.DiaryUpdateDto;
 import com.toy.project.emodiary.diary.dto.DiaryView;
 import com.toy.project.emodiary.diary.service.DiaryService;
@@ -44,7 +45,7 @@ public class DiaryController {
     }
 
     @GetMapping("/diaryMonthList")
-    public ResponseEntity<List<DiaryView>> MonthList(@RequestParam int year, @RequestParam int month) {
+    public ResponseEntity<DiaryMenuDto> MonthList(@RequestParam int year, @RequestParam int month) {
         return diaryService.diaryMonthList(year, month);
     }
 }

@@ -35,7 +35,7 @@ public class Diary {
     private Users user;
 
     @Column(name = "created_date", nullable = false, updatable = false)
-    private LocalDate createdDate;
+    public LocalDate createdDate;
 
     @Column(name = "modified_date", nullable = false)
     private LocalDate modifiedDate;

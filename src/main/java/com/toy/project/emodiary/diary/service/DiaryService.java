@@ -112,6 +112,7 @@ public class DiaryService {
          List<Diary> diaries = diaryRepository.findAllByUserUuid(users.getUuid());
          List<DiaryView> diaryViews = diaries.stream().map(diary -> {
              DiaryView diaryView = new DiaryView();
+             diaryView.setDiaryId(diary.getId());
              diaryView.setContent(diary.getContent());
              diaryView.setTitle(diary.getTitle());
              diaryView.setCreatedDate(diary.getCreatedDate());
@@ -133,6 +134,7 @@ public class DiaryService {
         List<Diary> diaries = diaryRepository.findAllByUserUuidAndCreatedDateBetween(currentUser.getUuid(), startDate, endDate);
         List<DiaryView> diaryViews = diaries.stream().map(diary -> {
             DiaryView diaryView = new DiaryView();
+            diaryView.setDiaryId(diary.getId());
             diaryView.setContent(diary.getContent());
             diaryView.setTitle(diary.getTitle());
             diaryView.setCreatedDate(diary.getCreatedDate());

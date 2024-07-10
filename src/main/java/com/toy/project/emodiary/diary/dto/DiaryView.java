@@ -8,6 +8,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class DiaryView {
+    Long diaryId;
     LocalDate createdDate;
     LocalDate modifiedDate;
     String content;

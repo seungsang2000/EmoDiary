@@ -11,6 +11,5 @@ import java.util.List;
 @AllArgsConstructor
 public class DiaryMenuDto {
     private List<YearCountDto> years;
-    private List<String> months;
     private List<DiaryView> diary;
 }

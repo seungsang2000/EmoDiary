@@ -65,7 +65,7 @@ public class DiaryService {
         diaryView.setModifiedDate(diary.getModifiedDate());
         diaryView.setWeather(diary.getWeather());
         diaryView.setNickname(diary.getUser().getNickname());
-        diaryView.setWordCouldUrl(diary.getWordImg());
+        diaryView.setWordCloudUrl(diary.getWordImg());
         return ResponseEntity.status(HttpStatus.OK).body(diaryView);
     }
 
@@ -119,7 +119,7 @@ public class DiaryService {
              diaryView.setModifiedDate(diary.getModifiedDate());
              diaryView.setWeather(diary.getWeather());
              diaryView.setNickname(diary.getUser().getNickname());
-             diaryView.setWordCouldUrl(diary.getWordImg());
+             diaryView.setWordCloudUrl(diary.getWordImg());
              return diaryView;
          }).toList();
 
@@ -141,13 +141,12 @@ public class DiaryService {
             diaryView.setModifiedDate(diary.getModifiedDate());
             diaryView.setWeather(diary.getWeather());
             diaryView.setNickname(diary.getUser().getNickname());
-            diaryView.setWordCouldUrl(diary.getWordImg());
+            diaryView.setWordCloudUrl(diary.getWordImg());
             return diaryView;
         }).toList();
 
-        List<String> months = diaryRepository.findUsedMonth(currentUser.getUuid(), year);
         List<YearCountDto> years = diaryRepository.findYearCount(currentUser.getUuid());
-        DiaryMenuDto diaryMenuDto = new DiaryMenuDto(years, months, diaryViews);
+        DiaryMenuDto diaryMenuDto = new DiaryMenuDto(years, diaryViews);
 
 
         return ResponseEntity.status(HttpStatus.OK).body(diaryMenuDto);

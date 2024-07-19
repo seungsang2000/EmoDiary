@@ -15,5 +15,5 @@ public class DiaryView {
     String title;
     String weather;
     String nickname;
-    String wordCouldUrl;
+    String wordCloudUrl;
 }

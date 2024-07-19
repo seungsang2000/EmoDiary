@@ -43,6 +43,7 @@ public class Diary {
     @Column(name = "word_img", nullable = true)
     private String wordImg;
 
-    @Column(name = "emotion", nullable = true)
-    private String emotion;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "emotion", referencedColumnName = "emotion")
+    private EmoS3Url emoS3Url;
 }

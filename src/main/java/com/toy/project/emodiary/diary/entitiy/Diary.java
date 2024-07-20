@@ -37,9 +37,6 @@ public class Diary {
     @Column(name = "created_date", nullable = false, updatable = false)
     public LocalDate createdDate;
 
-    @Column(name = "modified_date", nullable = false)
-    private LocalDate modifiedDate;
-
     @Column(name = "word_img", nullable = true)
     private String wordImg;
 

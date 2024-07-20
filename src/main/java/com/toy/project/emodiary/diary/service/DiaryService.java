@@ -7,7 +7,9 @@ import com.toy.project.emodiary.common.exception.CustomException;
 import com.toy.project.emodiary.common.exception.ErrorCode;
 import com.toy.project.emodiary.diary.dto.*;
 import com.toy.project.emodiary.diary.entitiy.Diary;
+import com.toy.project.emodiary.diary.entitiy.EmoS3Url;
 import com.toy.project.emodiary.diary.repository.DiaryRepository;
+import com.toy.project.emodiary.diary.repository.EmoS3UrlRepository;
 import com.toy.project.emodiary.s3.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +27,7 @@ import java.util.List;
 public class DiaryService {
 
     private final DiaryRepository diaryRepository;
+    private final EmoS3UrlRepository emoS3UrlRepository;
     private final SecurityUtil securityUtil;
     private final S3Service s3Service;
 
@@ -35,7 +38,6 @@ public class DiaryService {
         diary.setTitle(diaryCreateDto.getTitle());
         diary.setContent(diaryCreateDto.getContent());
         diary.setCreatedDate(diaryCreateDto.getCreatedDate());
-        diary.setModifiedDate(diaryCreateDto.getCreatedDate());
         Users currentUser = securityUtil.getCurrentUser();
         diary.setUser(currentUser);
         diaryRepository.save(diary);
@@ -52,6 +54,19 @@ public class DiaryService {
                     setWordCloud(s3Url, diary.getId());
                 });
 
+        // 감정 분석 요청
+        webClient.post()
+                .uri("http://localhost:8000/api/emodiary/sentiment")
+                .body(Mono.just(new EmotionRequestDto(diary.getContent(), diary.getId())), EmotionRequestDto.class)
+                .retrieve()
+                .bodyToMono(EmotionResponseDto.class)
+                .subscribe(response -> {
+                    EmoS3Url emoS3Url = emoS3UrlRepository.findById(response.getEmotion()).orElseThrow(() -> new CustomException(ErrorCode.EMOTION_NOT_FOUND));
+                    diary.setEmoS3Url(emoS3Url);
+                    diaryRepository.save(diary);
+                });
+
+
         return ResponseEntity.status(HttpStatus.OK).body(new MessageDto("일기 작성 완료"));
 
     }
@@ -62,10 +77,10 @@ public class DiaryService {
         diaryView.setContent(diary.getContent());
         diaryView.setTitle(diary.getTitle());
         diaryView.setCreatedDate(diary.getCreatedDate());
-        diaryView.setModifiedDate(diary.getModifiedDate());
         diaryView.setWeather(diary.getWeather());
         diaryView.setNickname(diary.getUser().getNickname());
         diaryView.setWordCloudUrl(diary.getWordImg());
+        diaryView.setEmotionUrl(diary.getEmoS3Url().getUrl());
         return ResponseEntity.status(HttpStatus.OK).body(diaryView);
     }
 
@@ -77,7 +92,6 @@ public class DiaryService {
         }
         diary.setTitle(diaryUpdateDto.getTitle());
         diary.setContent(diaryUpdateDto.getContent());
-        diary.setModifiedDate(diaryUpdateDto.getUpdatedDate());
         diaryRepository.save(diary);
         webClient.post()
                 .uri("http://localhost:8000/api/emodiary/wordcloud")
@@ -90,6 +104,20 @@ public class DiaryService {
                     // 업로드된 이미지 URL을 일기에 저장
                     setWordCloud(s3Url, diary.getId());
                 });
+
+        // 감정 분석 요청
+        webClient.post()
+                .uri("http://localhost:8000/api/emodiary/sentiment")
+                .body(Mono.just(new EmotionRequestDto(diary.getContent(), diary.getId())), EmotionRequestDto.class)
+                .retrieve()
+                .bodyToMono(EmotionResponseDto.class)
+                .subscribe(response -> {
+                    EmoS3Url emoS3Url = emoS3UrlRepository.findById(response.getEmotion()).orElseThrow(() -> new CustomException(ErrorCode.EMOTION_NOT_FOUND));
+                    diary.setEmoS3Url(emoS3Url);
+                    diaryRepository.save(diary);
+                });
+
+
         return ResponseEntity.status(HttpStatus.OK).body(new MessageDto("일기 수정 완료"));
     }
 
@@ -116,10 +144,14 @@ public class DiaryService {
              diaryView.setContent(diary.getContent());
              diaryView.setTitle(diary.getTitle());
              diaryView.setCreatedDate(diary.getCreatedDate());
-             diaryView.setModifiedDate(diary.getModifiedDate());
              diaryView.setWeather(diary.getWeather());
              diaryView.setNickname(diary.getUser().getNickname());
              diaryView.setWordCloudUrl(diary.getWordImg());
+             if (diary.getEmoS3Url() != null) {
+                 diaryView.setEmotionUrl(diary.getEmoS3Url().getUrl());
+             } else {
+                 diaryView.setEmotionUrl(null);
+             }
              return diaryView;
          }).toList();
 
@@ -138,10 +170,14 @@ public class DiaryService {
             diaryView.setContent(diary.getContent());
             diaryView.setTitle(diary.getTitle());
             diaryView.setCreatedDate(diary.getCreatedDate());
-            diaryView.setModifiedDate(diary.getModifiedDate());
             diaryView.setWeather(diary.getWeather());
             diaryView.setNickname(diary.getUser().getNickname());
             diaryView.setWordCloudUrl(diary.getWordImg());
+            if (diary.getEmoS3Url() != null) {
+                diaryView.setEmotionUrl(diary.getEmoS3Url().getUrl());
+            } else {
+                diaryView.setEmotionUrl(null);
+            }
             return diaryView;
         }).toList();
 

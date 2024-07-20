@@ -10,10 +10,10 @@ import java.time.LocalDate;
 public class DiaryView {
     Long diaryId;
     LocalDate createdDate;
-    LocalDate modifiedDate;
     String content;
     String title;
     String weather;
     String nickname;
     String wordCloudUrl;
+    String emotionUrl;
 }

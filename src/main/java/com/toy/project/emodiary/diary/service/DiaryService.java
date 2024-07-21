@@ -77,7 +77,11 @@ public class DiaryService {
         diaryView.setContent(diary.getContent());
         diaryView.setTitle(diary.getTitle());
         diaryView.setCreatedDate(diary.getCreatedDate());
-        diaryView.setWeather(diary.getWeather());
+        if(diary.getWeather() != null) {
+            diaryView.setWeatherUrl(diary.getWeather().getUrl());
+        } else {
+            diaryView.setWeatherUrl(null);
+        }
         diaryView.setNickname(diary.getUser().getNickname());
         diaryView.setWordCloudUrl(diary.getWordImg());
         diaryView.setEmotionUrl(diary.getEmoS3Url().getUrl());
@@ -144,7 +148,11 @@ public class DiaryService {
              diaryView.setContent(diary.getContent());
              diaryView.setTitle(diary.getTitle());
              diaryView.setCreatedDate(diary.getCreatedDate());
-             diaryView.setWeather(diary.getWeather());
+             if(diary.getWeather() != null) {
+                 diaryView.setWeatherUrl(diary.getWeather().getUrl());
+             } else {
+                 diaryView.setWeatherUrl(null);
+             }
              diaryView.setNickname(diary.getUser().getNickname());
              diaryView.setWordCloudUrl(diary.getWordImg());
              if (diary.getEmoS3Url() != null) {
@@ -170,7 +178,11 @@ public class DiaryService {
             diaryView.setContent(diary.getContent());
             diaryView.setTitle(diary.getTitle());
             diaryView.setCreatedDate(diary.getCreatedDate());
-            diaryView.setWeather(diary.getWeather());
+            if(diary.getWeather() != null) {
+                diaryView.setWeatherUrl(diary.getWeather().getUrl());
+            } else {
+                diaryView.setWeatherUrl(null);
+            }
             diaryView.setNickname(diary.getUser().getNickname());
             diaryView.setWordCloudUrl(diary.getWordImg());
             if (diary.getEmoS3Url() != null) {

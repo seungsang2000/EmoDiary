@@ -27,9 +27,6 @@ public class Diary {
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     public String content;
 
-    @Column(name = "weather", nullable = true)
-    public String Weather;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
@@ -43,4 +40,8 @@ public class Diary {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "emotion", referencedColumnName = "emotion")
     private EmoS3Url emoS3Url;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "weather", referencedColumnName = "weather")
+    private Weather weather;
 }

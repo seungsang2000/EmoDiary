@@ -12,7 +12,7 @@ public class DiaryView {
     LocalDate createdDate;
     String content;
     String title;
-    String weather;
+    String weatherUrl;
     String nickname;
     String wordCloudUrl;
     String emotionUrl;

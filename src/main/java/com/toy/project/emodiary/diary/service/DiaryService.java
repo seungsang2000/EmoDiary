@@ -8,19 +8,24 @@ import com.toy.project.emodiary.common.exception.ErrorCode;
 import com.toy.project.emodiary.diary.dto.*;
 import com.toy.project.emodiary.diary.entitiy.Diary;
 import com.toy.project.emodiary.diary.entitiy.EmoS3Url;
+import com.toy.project.emodiary.diary.entitiy.Weather;
 import com.toy.project.emodiary.diary.repository.DiaryRepository;
 import com.toy.project.emodiary.diary.repository.EmoS3UrlRepository;
+import com.toy.project.emodiary.diary.repository.WeatherRepository;
 import com.toy.project.emodiary.s3.service.S3Service;
+import com.toy.project.emodiary.weather.service.WeatherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +35,8 @@ public class DiaryService {
     private final EmoS3UrlRepository emoS3UrlRepository;
     private final SecurityUtil securityUtil;
     private final S3Service s3Service;
+    private final WeatherRepository weatherRepository;
+    private final WeatherService weatherService;
 
     private final WebClient webClient = WebClient.create();
 
@@ -43,7 +50,7 @@ public class DiaryService {
         diaryRepository.save(diary);
 
         webClient.post()
-                .uri("http://localhost:8000/api/emodiary/wordcloud")
+                .uri("http://caadiq.iptime.org:8001/api/emodiary/wordcloud")
                 .body(Mono.just(new WordCloudCreateDto(diary.getContent(), diary.getId())), WordCloudCreateDto.class)
                 .retrieve()
                 .bodyToMono(byte[].class)
@@ -56,7 +63,7 @@ public class DiaryService {
 
         // 감정 분석 요청
         webClient.post()
-                .uri("http://localhost:8000/api/emodiary/sentiment")
+                .uri("http://caadiq.iptime.org:8001/api/emodiary/sentiment")
                 .body(Mono.just(new EmotionRequestDto(diary.getContent(), diary.getId())), EmotionRequestDto.class)
                 .retrieve()
                 .bodyToMono(EmotionResponseDto.class)
@@ -66,10 +73,35 @@ public class DiaryService {
                     diaryRepository.save(diary);
                 });
 
+        fetchAndSaveWeatherAsync(diaryCreateDto.getLat(), diaryCreateDto.getLon(), diary.getId());
+
 
         return ResponseEntity.status(HttpStatus.OK).body(new MessageDto("일기 작성 완료"));
 
     }
+
+    public void fetchAndSaveWeatherAsync(double lat, double lon, Long diaryId) {
+        CompletableFuture.runAsync(() -> {
+            String weatherMain = weatherService.getCurrentWeatherMain(lat, lon);
+            Weather weather = weatherRepository.findById(weatherMain)
+                    .orElseGet(() -> {
+                        Weather newWeather = new Weather();
+                        newWeather.setWeather(weatherMain);
+                        newWeather.setUrl(null);
+                        return weatherRepository.save(newWeather);
+                    });
+            updateDiaryWithWeather(diaryId, weather);
+        });
+    }
+
+    @Transactional
+    public void updateDiaryWithWeather(Long diaryId, Weather weather) {
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new CustomException(ErrorCode.DIARY_NOT_FOUND));
+        diary.setWeather(weather);
+        diaryRepository.save(diary);
+    }
+
 
     public ResponseEntity<DiaryView> readDiary(long diaryId) {
         Diary diary = diaryRepository.findById(diaryId).orElseThrow(() -> new CustomException(ErrorCode.DIARY_NOT_FOUND));
@@ -98,7 +130,7 @@ public class DiaryService {
         diary.setContent(diaryUpdateDto.getContent());
         diaryRepository.save(diary);
         webClient.post()
-                .uri("http://localhost:8000/api/emodiary/wordcloud")
+                .uri("http://caadiq.iptime.org:8001/api/emodiary/wordcloud")
                 .body(Mono.just(new WordCloudCreateDto(diary.getContent(), diary.getId())), WordCloudCreateDto.class)
                 .retrieve()
                 .bodyToMono(byte[].class)
@@ -111,7 +143,7 @@ public class DiaryService {
 
         // 감정 분석 요청
         webClient.post()
-                .uri("http://localhost:8000/api/emodiary/sentiment")
+                .uri("http://caadiq.iptime.org:8001/api/emodiary/sentiment")
                 .body(Mono.just(new EmotionRequestDto(diary.getContent(), diary.getId())), EmotionRequestDto.class)
                 .retrieve()
                 .bodyToMono(EmotionResponseDto.class)

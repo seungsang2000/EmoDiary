@@ -52,6 +52,9 @@ public class SecurityConfig {
                         // S3
                         .requestMatchers("/s3/upload/**").permitAll()
 
+                        // 날씨 API
+                        .requestMatchers("/weather/**").permitAll()
+
                         // 그 외
                         .anyRequest().authenticated()
                 )

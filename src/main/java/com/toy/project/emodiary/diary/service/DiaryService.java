@@ -17,6 +17,7 @@ import com.toy.project.emodiary.weather.service.WeatherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -80,8 +81,9 @@ public class DiaryService {
 
     }
 
+    @Async
     public void fetchAndSaveWeatherAsync(double lat, double lon, Long diaryId) {
-        CompletableFuture.runAsync(() -> {
+        try {
             String weatherMain = weatherService.getCurrentWeatherMain(lat, lon);
             Weather weather = weatherRepository.findById(weatherMain)
                     .orElseGet(() -> {
@@ -91,7 +93,9 @@ public class DiaryService {
                         return weatherRepository.save(newWeather);
                     });
             updateDiaryWithWeather(diaryId, weather);
-        });
+        } catch (Exception ex) {
+            ex.printStackTrace(); // 예외 처리
+        }
     }
 
     @Transactional
@@ -100,6 +104,7 @@ public class DiaryService {
                 .orElseThrow(() -> new CustomException(ErrorCode.DIARY_NOT_FOUND));
         diary.setWeather(weather);
         diaryRepository.save(diary);
+        System.out.println(diary.getWeather().getWeather()+": 날씨 업데이트 완료");
     }
 
 

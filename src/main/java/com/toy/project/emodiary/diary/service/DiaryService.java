@@ -243,7 +243,10 @@ public class DiaryService {
         }).toList();
 
         List<YearCountDto> years = diaryRepository.findYearCount(currentUser.getUuid());
-        DiaryMenuDto diaryMenuDto = new DiaryMenuDto(years, diaryViews);
+
+        // 이 친구는 조금 수정 필요함
+        boolean todayDiary = diaryRepository.existsByUserUuidAndCreatedDate(currentUser.getUuid(), LocalDate.now());
+        DiaryMenuDto diaryMenuDto = new DiaryMenuDto(todayDiary, years, diaryViews);
 
 
         return ResponseEntity.status(HttpStatus.OK).body(diaryMenuDto);

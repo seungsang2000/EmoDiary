@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class DiaryMenuDto {
+    boolean todayDiary;
     private List<YearCountDto> years;
     private List<DiaryView> diary;
 }

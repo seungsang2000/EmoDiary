@@ -1,10 +1,7 @@
 package com.toy.project.emodiary.diary.controller;
 
 import com.toy.project.emodiary.common.dto.MessageDto;
-import com.toy.project.emodiary.diary.dto.DiaryCreateDto;
-import com.toy.project.emodiary.diary.dto.DiaryMenuDto;
-import com.toy.project.emodiary.diary.dto.DiaryUpdateDto;
-import com.toy.project.emodiary.diary.dto.DiaryView;
+import com.toy.project.emodiary.diary.dto.*;
 import com.toy.project.emodiary.diary.service.DiaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -47,5 +44,10 @@ public class DiaryController {
     @GetMapping("/diaryMonthList")
     public ResponseEntity<DiaryMenuDto> MonthList(@RequestParam int year, @RequestParam int month) {
         return diaryService.diaryMonthList(year, month);
+    }
+
+    @GetMapping("/myinformation")
+    public ResponseEntity<MyInformationResponseDto> MyInformation() {
+        return diaryService.myInformation();
     }
 }

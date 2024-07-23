@@ -15,6 +15,7 @@ import com.toy.project.emodiary.diary.repository.WeatherRepository;
 import com.toy.project.emodiary.s3.service.S3Service;
 import com.toy.project.emodiary.weather.service.WeatherService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -24,7 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.time.Year;
 import java.util.List;
 
 @Service
@@ -38,6 +41,9 @@ public class DiaryService {
     private final WeatherRepository weatherRepository;
     private final WeatherService weatherService;
 
+    @Value("${my.fast.api.url}")
+    private String fastApiUrl;
+
     private final WebClient webClient = WebClient.create();
 
     public ResponseEntity<MessageDto> createDiary(DiaryCreateDto diaryCreateDto) {
@@ -50,7 +56,7 @@ public class DiaryService {
         diaryRepository.save(diary);
 
         webClient.post()
-                .uri("http://caadiq.iptime.org:8001/api/emodiary/wordcloud")
+                .uri("http://"+fastApiUrl+"/api/emodiary/wordcloud")
                 .body(Mono.just(new WordCloudCreateDto(diary.getContent(), diary.getId())), WordCloudCreateDto.class)
                 .retrieve()
                 .bodyToMono(byte[].class)
@@ -58,12 +64,13 @@ public class DiaryService {
                     // S3에 이미지 업로드 및 URL 받아오기
                     String s3Url = s3Service.upload(response, "diary", diary.getId()+".jpg");
                     // 업로드된 이미지 URL을 일기에 저장
-                    setWordCloud(s3Url, diary.getId());
+                    diary.setWordImg(s3Url);
+                    diaryRepository.save(diary);
                 });
 
         // 감정 분석 요청
         webClient.post()
-                .uri("http://caadiq.iptime.org:8001/api/emodiary/sentiment")
+                .uri("http://"+fastApiUrl+"/api/emodiary/sentiment")
                 .body(Mono.just(new EmotionRequestDto(diary.getContent(), diary.getId())), EmotionRequestDto.class)
                 .retrieve()
                 .bodyToMono(EmotionResponseDto.class)
@@ -110,6 +117,7 @@ public class DiaryService {
     public ResponseEntity<DiaryView> readDiary(long diaryId) {
         Diary diary = diaryRepository.findById(diaryId).orElseThrow(() -> new CustomException(ErrorCode.DIARY_NOT_FOUND));
         DiaryView  diaryView = new DiaryView();
+        diaryView.setDiaryId(diary.getId());
         diaryView.setContent(diary.getContent());
         diaryView.setTitle(diary.getTitle());
         diaryView.setCreatedDate(diary.getCreatedDate());
@@ -134,7 +142,7 @@ public class DiaryService {
         diary.setContent(diaryUpdateDto.getContent());
         diaryRepository.save(diary);
         webClient.post()
-                .uri("http://caadiq.iptime.org:8001/api/emodiary/wordcloud")
+                .uri("http://"+fastApiUrl+"/api/emodiary/wordcloud")
                 .body(Mono.just(new WordCloudCreateDto(diary.getContent(), diary.getId())), WordCloudCreateDto.class)
                 .retrieve()
                 .bodyToMono(byte[].class)
@@ -142,12 +150,13 @@ public class DiaryService {
                     // S3에 이미지 업로드 및 URL 받아오기
                     String s3Url = s3Service.upload(response, "diary", diary.getId() + "");
                     // 업로드된 이미지 URL을 일기에 저장
-                    setWordCloud(s3Url, diary.getId());
+                    diary.setWordImg(s3Url);
+                    diaryRepository.save(diary);
                 });
 
         // 감정 분석 요청
         webClient.post()
-                .uri("http://caadiq.iptime.org:8001/api/emodiary/sentiment")
+                .uri("http://"+fastApiUrl+"/api/emodiary/sentiment")
                 .body(Mono.just(new EmotionRequestDto(diary.getContent(), diary.getId())), EmotionRequestDto.class)
                 .retrieve()
                 .bodyToMono(EmotionResponseDto.class)
@@ -242,5 +251,19 @@ public class DiaryService {
         diaryRepository.save(diary);
     }
 
-
+    public ResponseEntity<MyInformationResponseDto> myInformation() {
+        Users currentUser = securityUtil.getCurrentUser();
+        MyInformationResponseDto myInformationResponseDto = new MyInformationResponseDto();
+        myInformationResponseDto.setNickname(currentUser.getNickname());
+        LocalDate firstDiaryDate = diaryRepository.findFirstDiaryDate(currentUser.getUuid());
+        myInformationResponseDto.setFirstDiaryDate(firstDiaryDate);
+        int currentYear = LocalDate.now().getYear();
+        long totalDiariesThisYear = diaryRepository.countDiariesByUserUuidAndYear(currentUser.getUuid(), currentYear);
+        System.out.println("totalDiariesThisYear = " + totalDiariesThisYear);
+        int totalDaysThisYear = Year.isLeap(currentYear) ? 366 : 365;
+        double percentage = (double) totalDiariesThisYear / totalDaysThisYear * 100;
+        DecimalFormat decimalFormat = new DecimalFormat("0.#");
+        myInformationResponseDto.setPercentage(decimalFormat.format(percentage));
+        return ResponseEntity.status(HttpStatus.OK).body(myInformationResponseDto);
+    }
 }

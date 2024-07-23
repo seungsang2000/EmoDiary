@@ -24,6 +24,14 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     @Query("SELECT DISTINCT MONTH(d.createdDate) FROM Diary d WHERE d.user.uuid = :uuid AND YEAR(d.createdDate) = :year ORDER BY MONTH(d.createdDate) ASC")
     List<String> findUsedMonth(UUID uuid, Integer year);
 
+    @Query("SELECT MIN(d.createdDate) FROM Diary d WHERE d.user.uuid = :uuid")
+    LocalDate findFirstDiaryDate(UUID uuid);
+
+    @Query("SELECT COUNT(d) FROM Diary d WHERE d.user.uuid = :uuid AND YEAR(d.createdDate) = :year")
+    Long countDiariesByUserUuidAndYear(@Param("uuid") UUID uuid, @Param("year") int year);
+
+
+
 
 //    Page<Diary> findAllByUserUuid(UUID userId, Pageable pageable); // 페이지 필요할 때  사용
 }

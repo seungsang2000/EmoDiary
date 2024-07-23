@@ -31,7 +31,8 @@ public enum ErrorCode {
     // 500 Internal Server Error
     SIGNIN_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, "로그인에 실패했습니다."),
     LOGOUT_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, "로그아웃에 실패했습니다."),
-    FILE_CONVERT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "파일 변환에 실패했습니다.");
+    FILE_CONVERT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "파일 변환에 실패했습니다."),
+    DIARY_ALREADY_EXISTS(HttpStatus.INTERNAL_SERVER_ERROR, "해당일에는 이미 일기를 작성했습니다."),;
 
     private final HttpStatus httpStatus;
     private final String message;

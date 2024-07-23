@@ -13,6 +13,9 @@ import java.util.UUID;
 public interface DiaryRepository extends JpaRepository<Diary, Long> {
     List<Diary> findAllByUserUuid(UUID userId);
 
+    // 해당 날짜에 작성된 일기 존재여부
+    boolean existsByUserUuidAndCreatedDate(UUID uuid, LocalDate createdDate);
+
     @Query("SELECT d FROM Diary d WHERE d.user.uuid = :uuid AND d.createdDate BETWEEN :startDate AND :endDate")
     List<Diary> findAllByUserUuidAndCreatedDateBetween(@Param("uuid") UUID uuid, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 

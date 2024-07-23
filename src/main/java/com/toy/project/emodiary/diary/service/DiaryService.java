@@ -47,6 +47,10 @@ public class DiaryService {
     private final WebClient webClient = WebClient.create();
 
     public ResponseEntity<MessageDto> createDiary(DiaryCreateDto diaryCreateDto) {
+        if(diaryRepository.existsByUserUuidAndCreatedDate(securityUtil.getCurrentUser().getUuid(), diaryCreateDto.getCreatedDate())) {
+            throw new CustomException(ErrorCode.DIARY_ALREADY_EXISTS);
+        }
+
         Diary diary = new Diary();
         diary.setTitle(diaryCreateDto.getTitle());
         diary.setContent(diaryCreateDto.getContent());

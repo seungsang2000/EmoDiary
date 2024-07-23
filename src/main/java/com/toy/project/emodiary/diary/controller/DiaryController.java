@@ -46,8 +46,8 @@ public class DiaryController {
         return diaryService.diaryMonthList(year, month);
     }
 
-    @GetMapping("/myinformation")
-    public ResponseEntity<MyInformationResponseDto> MyInformation() {
-        return diaryService.myInformation();
+    @PostMapping("/myinformation")
+    public ResponseEntity<MyInformationResponseDto> MyInformation(@RequestBody MyInformationRequestDto myInformationRequestDto) {
+        return diaryService.myInformation(myInformationRequestDto);
     }
 }

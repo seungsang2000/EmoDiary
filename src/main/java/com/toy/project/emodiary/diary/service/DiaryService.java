@@ -258,7 +258,7 @@ public class DiaryService {
         diaryRepository.save(diary);
     }
 
-    public ResponseEntity<MyInformationResponseDto> myInformation(MyInformationRequestDto myInformationRequestDto) {
+    public ResponseEntity<MyInformationResponseDto> myInformation() {
         Users currentUser = securityUtil.getCurrentUser();
 
         // 닉네임
@@ -270,7 +270,8 @@ public class DiaryService {
         myInformationResponseDto.setFirstDiaryDate(firstDiaryDate);
 
         // 올해 일기 작성 비율
-        int currentYear = myInformationRequestDto.getToday().getYear();
+        int currentYear = LocalDate.now().getYear();
+        System.out.println("currentYear = " + currentYear);
         long totalDiariesThisYear = diaryRepository.countDiariesByUserUuidAndYear(currentUser.getUuid(), currentYear);
         System.out.println("totalDiariesThisYear = " + totalDiariesThisYear);
         int totalDaysThisYear = Year.isLeap(currentYear) ? 366 : 365;

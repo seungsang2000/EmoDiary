@@ -15,4 +15,5 @@ public class MyInformationResponseDto {
     String nickname;
     LocalDate firstDiaryDate;
     String percentage;
+    EmotionsDto[] emotions;
 }

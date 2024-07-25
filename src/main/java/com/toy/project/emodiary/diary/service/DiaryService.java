@@ -255,13 +255,6 @@ public class DiaryService {
         return ResponseEntity.status(HttpStatus.OK).body(diaryMenuDto);
     }
 
-
-    public void setWordCloud(String imgURL, Long diaryId) {
-        Diary diary = diaryRepository.findById(diaryId).orElseThrow(() -> new CustomException(ErrorCode.DIARY_NOT_FOUND));
-        diary.setWordImg(imgURL);
-        diaryRepository.save(diary);
-    }
-
     public ResponseEntity<MyInformationResponseDto> myInformation() {
         Users currentUser = securityUtil.getCurrentUser();
 
@@ -282,6 +275,52 @@ public class DiaryService {
         double percentage = (double) totalDiariesThisYear / totalDaysThisYear * 100;
         DecimalFormat decimalFormat = new DecimalFormat("0.#");
         myInformationResponseDto.setPercentage(decimalFormat.format(percentage));
+
+        LocalDate oneWeekAgo = LocalDate.now().minusWeeks(1);
+        List<Diary> lastWeekDiaries = diaryRepository.findAllByUserUuidAndCreatedDateBetween(currentUser.getUuid(), oneWeekAgo, LocalDate.now());
+
+        List<EmotionsDto> emotionsList = lastWeekDiaries.stream().map(diary -> {
+            EmotionsDto emotionsDto = new EmotionsDto();
+
+            emotionsDto.setDate(diary.getCreatedDate());
+
+            switch (diary.getCreatedDate().getDayOfWeek()) {
+                case MONDAY -> emotionsDto.setDay("월");
+                case TUESDAY -> emotionsDto.setDay("화");
+                case WEDNESDAY -> emotionsDto.setDay("수");
+                case THURSDAY -> emotionsDto.setDay("목");
+                case FRIDAY -> emotionsDto.setDay("금");
+                case SATURDAY -> emotionsDto.setDay("토");
+                case SUNDAY -> emotionsDto.setDay("일");
+                default -> emotionsDto.setDay("?");
+            }
+
+            if (diary.getEmoS3Url() != null) {
+                switch (diary.getEmoS3Url().getEmotion()){
+                    case  "Very Bad" -> emotionsDto.setEmotion(1);
+                    case "Bad" -> emotionsDto.setEmotion(2);
+                    case "Neutral" -> emotionsDto.setEmotion(3);
+                    case "Good" -> emotionsDto.setEmotion(4);
+                    case "Very Good" -> emotionsDto.setEmotion(5);
+                }
+            } else {
+                emotionsDto.setEmotion(0); // 감정 정보가 없는 경우 기본값
+            }
+            return emotionsDto;
+        }).toList();
+
+        myInformationResponseDto.setEmotions(emotionsList.toArray(new EmotionsDto[0]));
+
+
         return ResponseEntity.status(HttpStatus.OK).body(myInformationResponseDto);
     }
+
+    public void setWordCloud(String imgURL, Long diaryId) {
+        Diary diary = diaryRepository.findById(diaryId).orElseThrow(() -> new CustomException(ErrorCode.DIARY_NOT_FOUND));
+        diary.setWordImg(imgURL);
+        diaryRepository.save(diary);
+    }
+
+
+
 }

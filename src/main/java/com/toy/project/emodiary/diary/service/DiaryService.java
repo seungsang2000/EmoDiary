@@ -174,6 +174,7 @@ public class DiaryService {
         return ResponseEntity.status(HttpStatus.OK).body(new MessageDto("일기 수정 완료"));
     }
 
+    // 다이어리 삭제(s3 이미지 삭제 포함)
     public ResponseEntity<MessageDto> deleteDiary(long diaryId) {
         Diary diary = diaryRepository.findById(diaryId).orElseThrow(() -> new CustomException(ErrorCode.DIARY_NOT_FOUND));
         Users currentUser = securityUtil.getCurrentUser();
@@ -181,12 +182,14 @@ public class DiaryService {
             throw new CustomException(ErrorCode.DELETE_DENIED);
         }
         if (diary.getWordImg() != null && !diary.getWordImg().isEmpty()) {
-            String fileName = diary.getWordImg().substring(diary.getWordImg().lastIndexOf("/") + 1);
+            String fileName = diary.getWordImg().substring(diary.getWordImg().indexOf("diary/"));
+            System.out.println("Deleting file: " + fileName);
             s3Service.deleteImage(fileName);
         }
         diaryRepository.deleteById(diaryId);
         return ResponseEntity.status(HttpStatus.OK).body(new MessageDto("일기 삭제 완료"));
     }
+
 
     public ResponseEntity<List<DiaryView>> mydiaryList(){
         Users users = securityUtil.getCurrentUser();
@@ -251,6 +254,7 @@ public class DiaryService {
 
         return ResponseEntity.status(HttpStatus.OK).body(diaryMenuDto);
     }
+
 
     public void setWordCloud(String imgURL, Long diaryId) {
         Diary diary = diaryRepository.findById(diaryId).orElseThrow(() -> new CustomException(ErrorCode.DIARY_NOT_FOUND));
